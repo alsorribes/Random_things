@@ -22,7 +22,7 @@ def load_key():
 mast_pwd = input("Write your master password: ")
 
 key = load_key() + mast_pwd.encode()        #we have our key in bytes, so de master password must be in bytes too            
-fer = Fernet(key)                           #initializing the encryption module 
+fer = Fernet(key)                           #initializing the encryption modulee
 
 def create_file():
     file = open('data.txt', 'w')
