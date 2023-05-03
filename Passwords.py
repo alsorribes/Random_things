@@ -1,12 +1,14 @@
 
 import base64
+import typing
 from cryptography.fernet import Fernet
-
+ 
 print()
-print("In this program you will have to introduce a master password and then, a username and a password for your account.")
+print("In this program you will have to introduce a username and a password for your account.")
 print("Your data will be written in an external file with your password encrypted. You can decrypt it at the end of the program if you want.")
+print("For decrypt the passwords, you will have to know the master password")
 print()
-print("In the next steps you must write a master password, a username and a password")
+print("In the next steps you must write a username and a password")
 
 def generate_key():
     key = Fernet.generate_key()
@@ -19,10 +21,10 @@ def load_key():
     file.close()
     return key
 
-mast_pwd = input("Write your master password: ")
+mast_pwd = "SirBarrufet"
 
-key = load_key() + mast_pwd.encode()        #we have our key in bytes, so de master password must be in bytes too            
-fer = Fernet(key)                           #initializing the encryption modulee
+key = load_key() + mast_pwd.encode()       #we have our key in bytes, so the master password must be in bytes too            
+fer = Fernet(key)                           #initializing the encryption module
 
 def create_file():
     file = open('data.txt', 'w')
@@ -64,10 +66,11 @@ def decrypt():
         x = line.split("/ ")
         user = x[0]
         pwd = x[1]
-        result = fer.decrypt(pwd.encode()).decode
+        #result = base64.decode(fer.decrypt(pwd.encode()).decode())
+        result = fer.decrypt(pwd.encode())
         write_pwd_decrypted(result, user)
 
-
+#main
 create_file()
 
 while True:
