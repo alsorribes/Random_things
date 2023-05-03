@@ -1,12 +1,9 @@
-
-import base64
-import typing
 from cryptography.fernet import Fernet
- 
+
 print()
 print("In this program you will have to introduce a username and a password for your account.")
 print("Your data will be written in an external file with your password encrypted. You can decrypt it at the end of the program if you want.")
-print("For decrypt the passwords, you will have to know the master password")
+print("For decrypt the passwords, you will have to know the master password. As well as that, your decrypted data will be written in another file")
 print()
 print("In the next steps you must write a username and a password")
 
@@ -21,54 +18,57 @@ def load_key():
     file.close()
     return key
 
-mast_pwd = "SirBarrufet"
+mast_pwd = "SirBarrufet"                    #master password assignment   
+written = False                             #global variable for adding the decrypted passwords in another file
 
-key = load_key() + mast_pwd.encode()       #we have our key in bytes, so the master password must be in bytes too            
+key = load_key() + mast_pwd.encode()        #we have our key in bytes, so the master password must be in bytes too            
 fer = Fernet(key)                           #initializing the encryption module
 
-def create_file():
+def create_file():                          #method for create a file for writting the users and the encrypted passwords
     file = open('data.txt', 'w')
     user = input("Write your username: ")
     pwd = input("Write your password: ")
-    file.write(user+ " / "+fer.encrypt(pwd.encode()).decode())      #we use de decode to remove the bites shown when we print the password
+    file.write(user+ " / "+fer.encrypt(pwd.encode()).decode())      #we use de decode to remove the bytes shown when we print the password
     file.close
 
-def new_data():
+def new_data():                             #method for adding new data in the same file as before
     file = open('data.txt', 'a')
     user = input("Write a new username: ")
     pwd = input("Write a new password: ")
-    file.write('\n'+user+" / "+fer.encrypt(pwd.encode()).decode())
+    file.write('\n'+user+" / "+fer.encrypt(pwd.encode()).decode())  #we use de decode to remove the bytes shown when we print the password
     file.close
 
-def read_file():
-    file = open('data.txt', 'r')
-    print(file.read())
-    file.close
-
-def new_account():
+def new_account():                          #method to ask if we want to introduce a new account or not
     value = input("Do you want to introduce a new account? (yes/no) ")
     return (value)
 
-def check_value(value):
+def check_value(value):                     #method for checking if the vaule is correct or not when the user writes it
     if (value == "yes" or value == "no"):
         type = True
     else:
         type = False
     return (type)
 
-def write_pwd_decrypted(password, user):
-    with open('data.txt', 'a') as file:
+def write_pwd_decrypted(password, user):    #method for writing the decrypted passwords in a new file
+    global written                          #we declare this variable as global for not having problems with the local assignment
+    if written == False:                    
+        file = open('data_decrypted.txt', 'w')
+        file.write(user+" / "+str(password))
+        written = True
+    else:
+        file = open('data_decrypted.txt', 'a')
         file.write('\n'+user+" / "+str(password))
+        written = True
+    file.close()
     
-def decrypt():
+def decrypt():                              #method for decrypting the encrypted passwords in the data.txt file
     file = open('data.txt', 'r')
     for line in file:
-        x = line.split("/ ")
+        x = line.split("/ ")                #we use a split for get the user and the password for separate
         user = x[0]
         pwd = x[1]
-        #result = base64.decode(fer.decrypt(pwd.encode()).decode())
-        result = fer.decrypt(pwd.encode())
-        write_pwd_decrypted(result, user)
+        result = fer.decrypt(pwd.encode())  #we use the encode beacuse for decrypting the variable must be in bytes
+        write_pwd_decrypted(result, user)   #we send the result to another method for writing it in another file
 
 #main
 create_file()
@@ -85,12 +85,29 @@ while True:
     
     if value1 == "yes":
         new_data()
-        read_file()
     else:
         value2 = input("Do you want to decrypt all the passwords? (yes/no) ")
         type2 = check_value(value2)
 
+        while (type2 != True):
+            print("Wrong answer, type it correctly!")
+            value2 = input("Do you want to decrypt all the passwords? (yes/no) ")
+            type2 = check_value(value2)
+
         if value2 == "yes":
-            decrypt()
-        
-        exit("Have a nice day!")
+            print()
+            print("¡SECURITY METHOD!")
+            print("You only have three attempts!!!")
+            i=3
+            while (i>0):
+                verification = input("For decrypting you have to write the master password, type it: ")
+                if verification != mast_pwd:
+                    i=i-1
+                    if i==0:
+                        exit("Ejecting out of the system...")
+                    print("Wrong master password, try again. "+str(i)+" attempts remaining")
+                else:
+                    print()
+                    print("Correct master password! DECRYPTING")
+                    decrypt()
+                    exit("Have a nice day!")
