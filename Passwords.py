@@ -89,6 +89,9 @@ while True:
         value2 = input("Do you want to decrypt all the passwords? (yes/no) ")
         type2 = check_value(value2)
 
+        if value2 == "no":
+            exit("Have a nice day!")
+
         while (type2 != True):
             print("Wrong answer, type it correctly!")
             value2 = input("Do you want to decrypt all the passwords? (yes/no) ")
